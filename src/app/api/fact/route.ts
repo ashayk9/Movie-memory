@@ -55,9 +55,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ factText });
   } catch (e) {
     // Base impl: no special fallback yet (Variant A will add cached fallback).
+    const message = e instanceof Error ? e.message : String(e);
+    console.error("[/api/fact] generateMovieFactBase failed:", message);
+
     return NextResponse.json(
-      { error: "Failed to generate a fact right now. Please try again." },
-      { status: 500 },
+      {
+        error:
+          process.env.NODE_ENV === "development"
+            ? `Failed: ${message}`
+            : "Failed to generate a fact right now. Please try again.",
+      },
+      { status: 500 }
     );
   }
 }

@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation";
-import { cookies, headers } from "next/headers";
 
 import { prisma } from "@/lib/db/prisma";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
+
+import GoogleSignInButton from "./GoogleSignInButton";
 
 export default async function Home() {
   const currentUser = await getCurrentUser();
@@ -16,16 +17,6 @@ export default async function Home() {
     if (dbUser?.favoriteMovie) redirect("/dashboard");
     redirect("/onboarding");
   }
-
-  const cookieHeader = cookies().toString();
-  const host = headers().get("host") ?? "localhost:3004";
-  const proto = process.env.NODE_ENV === "production" ? "https" : "http";
-
-  // Auth.js requires a CSRF token for the provider sign-in POST.
-  // If we omit it, Auth.js falls back to its intermediate `/api/auth/signin/csrf=true` page.
-  const csrf = await fetch(`${proto}://${host}/api/auth/csrf`, {
-    headers: { cookie: cookieHeader },
-  }).then((r) => r.json().catch(() => null));
 
   return (
     <main className="page">
@@ -55,15 +46,10 @@ export default async function Home() {
               Sign in to continue to onboarding.
             </p>
             <div className="mt-6">
-              <form action="/api/auth/signin/google" method="post">
-                <input type="hidden" name="callbackUrl" value="/" />
-                {csrf?.csrfToken ? (
-                  <input type="hidden" name="csrfToken" value={csrf.csrfToken} />
-                ) : null}
-                <button type="submit" className="btn-primary w-full">
-                  Sign in with Google
-                </button>
-              </form>
+              <GoogleSignInButton
+                callbackUrl="/"
+                className="btn-primary w-full"
+              />
             </div>
             <p className="mt-4 text-xs text-slate-500">
               Your favorite movie is stored in Postgres.

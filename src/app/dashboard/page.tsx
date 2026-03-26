@@ -1,23 +1,14 @@
 import { redirect } from "next/navigation";
-import { cookies, headers } from "next/headers";
 
 import { prisma } from "@/lib/db/prisma";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 
 import FactGenerator from "./FactGenerator";
+import LogoutButton from "../LogoutButton";
 
 export default async function DashboardPage() {
   const currentUser = await getCurrentUser();
   if (!currentUser) redirect("/");
-
-  const cookieHeader = cookies().toString();
-  const host = headers().get("host") ?? "localhost:3004";
-  const proto = process.env.NODE_ENV === "production" ? "https" : "http";
-
-  // Auth.js signout requires a CSRF token for the POST request.
-  const csrf = await fetch(`${proto}://${host}/api/auth/csrf`, {
-    headers: { cookie: cookieHeader },
-  }).then((r) => r.json().catch(() => null));
 
   const dbUser = await prisma.user.findUnique({
     where: { id: currentUser.userId },
@@ -77,14 +68,7 @@ export default async function DashboardPage() {
                 </div>
               </div>
 
-              <form action="/api/auth/signout?callbackUrl=/" method="post">
-                {csrf?.csrfToken ? (
-                  <input type="hidden" name="csrfToken" value={csrf.csrfToken} />
-                ) : null}
-                <button type="submit" className="btn-ghost">
-                  Logout
-                </button>
-              </form>
+              <LogoutButton className="btn-ghost" />
             </div>
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
