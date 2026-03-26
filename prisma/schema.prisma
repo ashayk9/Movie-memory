@@ -1,0 +1,56 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String        @id @default(cuid())
+  googleId     String        @unique
+  email        String?
+  name         String?
+  image        String?
+  favoriteMovie String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  movieFacts              MovieFact[]
+  generationLocks        FactGenerationLock[]
+}
+
+model MovieFact {
+  id         String   @id @default(cuid())
+  userId     String
+  movieTitle String
+  factText   String
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, movieTitle, createdAt])
+}
+
+model FactGenerationLock {
+  id         String   @id @default(cuid())
+  userId     String
+  movieTitle String
+
+  // Keep it simple for this take-home; you can extend later to FAILED/RETRY states.
+  status     String   @default("IN_PROGRESS")
+
+  startedAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, movieTitle])
+  @@index([userId, movieTitle])
+}

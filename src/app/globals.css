@@ -2,26 +2,55 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
+@layer base {
+  html,
+  body {
+    height: 100%;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased;
   }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+@layer components {
+  .page {
+    @apply min-h-screen;
+  }
+
+  .container {
+    @apply mx-auto w-full max-w-5xl px-6;
+  }
+
+  .card {
+    @apply rounded-2xl border border-slate-200 bg-white shadow-sm;
+  }
+
+  .card-muted {
+    @apply rounded-2xl border border-slate-200 bg-slate-50;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-200 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-primary {
+    @apply btn bg-blue-600 text-white hover:bg-blue-700;
+  }
+
+  .btn-ghost {
+    @apply btn bg-transparent text-slate-700 hover:bg-slate-100;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-900 placeholder:text-slate-500 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200;
+  }
+
+  .label {
+    @apply text-sm font-medium text-slate-800;
+  }
+
+  .help {
+    @apply text-sm text-slate-600;
+  }
 }
