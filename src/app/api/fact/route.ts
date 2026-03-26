@@ -61,6 +61,13 @@ export async function POST(request: Request) {
     const message = e instanceof Error ? e.message : String(e);
     console.error("[/api/fact] generateMovieFactBase failed:", message);
 
+    if (message === "FACT_GENERATION_IN_PROGRESS") {
+      return NextResponse.json(
+        { error: "Fact generation in progress. Please try again in a second." },
+        { status: 409 }
+      );
+    }
+
     return NextResponse.json(
       {
         error:
