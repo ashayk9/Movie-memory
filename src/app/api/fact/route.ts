@@ -48,11 +48,14 @@ export async function POST(request: Request) {
   }
 
   try {
-    const factText = await generateMovieFactBase({
+    const result = await generateMovieFactBase({
       userId: currentUser.userId,
       movieTitle: normalizedStored,
     });
-    return NextResponse.json({ factText });
+    return NextResponse.json({
+      factText: result.factText,
+      source: result.source,
+    });
   } catch (e) {
     // Base impl: no special fallback yet (Variant A will add cached fallback).
     const message = e instanceof Error ? e.message : String(e);

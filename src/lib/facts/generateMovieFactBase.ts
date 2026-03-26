@@ -12,6 +12,8 @@ type ProviderAttempt = {
   model: string;
 };
 
+const CACHE_WINDOW_MS = 60_000;
+
 export async function generateMovieFactBase({
   userId,
   movieTitle,
@@ -20,6 +22,26 @@ export async function generateMovieFactBase({
   movieTitle: string;
 }) {
   const normalizedMovieTitle = normalizeMovieTitle(movieTitle);
+
+  // Variant A cache window: reuse the most recent fact for this exact user+movie key.
+  const latestFact = await prisma.movieFact.findFirst({
+    where: {
+      userId,
+      movieTitle: normalizedMovieTitle,
+    },
+    orderBy: { createdAt: "desc" },
+    select: { factText: true, createdAt: true },
+  });
+
+  if (
+    latestFact &&
+    Date.now() - latestFact.createdAt.getTime() < CACHE_WINDOW_MS
+  ) {
+    return {
+      factText: latestFact.factText,
+      source: "cache" as const,
+    };
+  }
 
   const openaiKey = process.env.OPENAI_API_KEY;
   const groqKey = process.env.GROQ_API_KEY;
@@ -86,7 +108,10 @@ export async function generateMovieFactBase({
         },
       });
 
-      return factText;
+      return {
+        factText,
+        source: "generated" as const,
+      };
     } catch (e) {
       lastError = e;
     }
@@ -96,8 +121,5 @@ export async function generateMovieFactBase({
     lastError instanceof Error ? lastError.message : String(lastError);
   throw new Error(`LLM call failed. Last error: ${lastMessage}`);
 
-  // Unreachable, but keeps TS happy.
-  // eslint-disable-next-line no-unreachable
-  return "";
 }
 
