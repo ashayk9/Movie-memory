@@ -38,7 +38,7 @@ vi.mock("openai", () => ({
   },
 }));
 
-describe("generateMovieFactBase Variant A behavior", () => {
+describe("getFactForUserMovie Variant A behavior", () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
@@ -53,10 +53,10 @@ describe("generateMovieFactBase Variant A behavior", () => {
       createdAt: new Date(Date.now() - 10_000),
     });
 
-    const { generateMovieFactBase } = await import(
-      "@/lib/facts/generateMovieFactBase"
+    const { getFactForUserMovie } = await import(
+      "@/lib/facts/getFactForUserMovie"
     );
-    const result = await generateMovieFactBase({
+    const result = await getFactForUserMovie({
       userId: "user-1",
       movieTitle: "  Avengers   ",
     });
@@ -84,10 +84,10 @@ describe("generateMovieFactBase Variant A behavior", () => {
     movieFactCreate.mockResolvedValueOnce({});
     lockDeleteMany.mockResolvedValueOnce({ count: 1 });
 
-    const { generateMovieFactBase } = await import(
-      "@/lib/facts/generateMovieFactBase"
+    const { getFactForUserMovie } = await import(
+      "@/lib/facts/getFactForUserMovie"
     );
-    const result = await generateMovieFactBase({
+    const result = await getFactForUserMovie({
       userId: "user-1",
       movieTitle: "Avengers",
     });
@@ -118,17 +118,18 @@ describe("generateMovieFactBase Variant A behavior", () => {
       updatedAt: new Date(),
     });
 
-    const { generateMovieFactBase } = await import(
-      "@/lib/facts/generateMovieFactBase"
+    const { getFactForUserMovie } = await import(
+      "@/lib/facts/getFactForUserMovie"
     );
 
-    const promise = generateMovieFactBase({
+    const promise = getFactForUserMovie({
       userId: "user-1",
       movieTitle: "Avengers",
     });
-    const pendingExpectation = expect(promise).rejects.toThrow(
-      "FACT_GENERATION_IN_PROGRESS",
-    );
+    const pendingExpectation = expect(promise).rejects.toMatchObject({
+      code: "GENERATION_IN_PROGRESS",
+      status: 409,
+    });
 
     await vi.runAllTimersAsync();
     await pendingExpectation;
@@ -144,10 +145,10 @@ describe("generateMovieFactBase Variant A behavior", () => {
       createdAt: new Date(Date.now() - 5_000),
     });
 
-    const { generateMovieFactBase } = await import(
-      "@/lib/facts/generateMovieFactBase"
+    const { getFactForUserMovie } = await import(
+      "@/lib/facts/getFactForUserMovie"
     );
-    await generateMovieFactBase({
+    await getFactForUserMovie({
       userId: "user-A",
       movieTitle: "  Avengers   ",
     });
@@ -181,10 +182,10 @@ describe("generateMovieFactBase Variant A behavior", () => {
     completionCreate.mockRejectedValueOnce(new Error("provider down"));
     lockDeleteMany.mockResolvedValueOnce({ count: 1 });
 
-    const { generateMovieFactBase } = await import(
-      "@/lib/facts/generateMovieFactBase"
+    const { getFactForUserMovie } = await import(
+      "@/lib/facts/getFactForUserMovie"
     );
-    const result = await generateMovieFactBase({
+    const result = await getFactForUserMovie({
       userId: "user-1",
       movieTitle: "Avengers",
     });
@@ -224,15 +225,15 @@ describe("generateMovieFactBase Variant A behavior", () => {
     });
     lockDeleteMany.mockResolvedValue({ count: 1 });
 
-    const { generateMovieFactBase } = await import(
-      "@/lib/facts/generateMovieFactBase"
+    const { getFactForUserMovie } = await import(
+      "@/lib/facts/getFactForUserMovie"
     );
 
-    const p1 = generateMovieFactBase({
+    const p1 = getFactForUserMovie({
       userId: "user-1",
       movieTitle: "Avengers",
     });
-    const p2 = generateMovieFactBase({
+    const p2 = getFactForUserMovie({
       userId: "user-1",
       movieTitle: "Avengers",
     });

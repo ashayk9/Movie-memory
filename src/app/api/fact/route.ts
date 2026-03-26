@@ -3,7 +3,8 @@ import { z } from "zod";
 
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import { prisma } from "@/lib/db/prisma";
-import { generateMovieFactBase } from "@/lib/facts/generateMovieFactBase";
+import { getFactForUserMovie } from "@/lib/facts/getFactForUserMovie";
+import { AppError } from "@/lib/facts/errors";
 
 const BodySchema = z.object({
   movieTitle: z.string().trim().min(1).max(100),
@@ -12,14 +13,22 @@ const BodySchema = z.object({
 export async function POST(request: Request) {
   const currentUser = await getCurrentUser();
   if (!currentUser) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { error: "Unauthorized", code: "UNAUTHORIZED", retryable: false },
+      { status: 401 }
+    );
   }
 
   const body = await request.json().catch(() => null);
   const parsed = BodySchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.flatten().fieldErrors.movieTitle?.[0] ?? "Invalid input" },
+      {
+        error:
+          parsed.error.flatten().fieldErrors.movieTitle?.[0] ?? "Invalid input",
+        code: "INVALID_INPUT",
+        retryable: false,
+      },
       { status: 400 },
     );
   }
@@ -33,7 +42,11 @@ export async function POST(request: Request) {
 
   if (!dbUser?.favoriteMovie) {
     return NextResponse.json(
-      { error: "Favorite movie not set. Please complete onboarding." },
+      {
+        error: "Favorite movie not set. Please complete onboarding.",
+        code: "FAVORITE_MOVIE_NOT_SET",
+        retryable: false,
+      },
       { status: 400 },
     );
   }
@@ -42,13 +55,17 @@ export async function POST(request: Request) {
   const normalizedStored = dbUser.favoriteMovie.replace(/\s+/g, " ");
   if (normalizedRequested !== normalizedStored) {
     return NextResponse.json(
-      { error: "Movie title does not match your saved favorite movie." },
+      {
+        error: "Movie title does not match your saved favorite movie.",
+        code: "MOVIE_MISMATCH",
+        retryable: false,
+      },
       { status: 400 },
     );
   }
 
   try {
-    const result = await generateMovieFactBase({
+    const result = await getFactForUserMovie({
       userId: currentUser.userId,
       movieTitle: normalizedStored,
     });
@@ -57,23 +74,38 @@ export async function POST(request: Request) {
       source: result.source,
     });
   } catch (e) {
-    // Base impl: no special fallback yet (Variant A will add cached fallback).
-    const message = e instanceof Error ? e.message : String(e);
-    console.error("[/api/fact] generateMovieFactBase failed:", message);
-
-    if (message === "FACT_GENERATION_IN_PROGRESS") {
-      return NextResponse.json(
-        { error: "Fact generation in progress. Please try again in a second." },
-        { status: 409 }
+    if (e instanceof AppError) {
+      // Expected, typed failures (in-progress, provider down, misconfig, etc.)
+      if (process.env.NODE_ENV === "development") {
+        console.info(`[/api/fact] ${e.code}: ${e.message}`);
+      }
+      const res = NextResponse.json(
+        {
+          error: e.message,
+          code: e.code,
+          retryable: e.retryable,
+          retryAfterMs: e.retryAfterMs ?? null,
+        },
+        { status: e.status }
       );
+      if (e.retryAfterMs != null) {
+        // Retry-After is seconds (HTTP spec).
+        res.headers.set("Retry-After", String(Math.ceil(e.retryAfterMs / 1000)));
+      }
+      return res;
     }
 
+    const message = e instanceof Error ? e.message : String(e);
+    console.error("[/api/fact] unexpected error:", message);
     return NextResponse.json(
       {
         error:
           process.env.NODE_ENV === "development"
             ? `Failed: ${message}`
             : "Failed to generate a fact right now. Please try again.",
+        code: "UNKNOWN",
+        retryable: true,
+        retryAfterMs: null,
       },
       { status: 500 }
     );

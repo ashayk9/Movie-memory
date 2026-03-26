@@ -15,7 +15,9 @@ export const prisma =
     return new PrismaClient({
       adapter: new PrismaPg({ connectionString }),
       // Optional: keep logs quiet by default; enable in debugging.
-      log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
+      // In development, Prisma "error" logs include expected unique-constraint conflicts
+      // (used for our lock mechanism). We handle those in code, so keep console cleaner.
+      log: process.env.NODE_ENV === "development" ? ["warn"] : ["error"],
     });
   })();
 
