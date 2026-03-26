@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 
 import FactGenerator from "./FactGenerator";
 import LogoutButton from "../LogoutButton";
+import Image from "next/image";
 
 export default async function DashboardPage() {
   const currentUser = await getCurrentUser();
@@ -40,6 +41,15 @@ export default async function DashboardPage() {
     );
   }
 
+  const latestFact = await prisma.movieFact.findFirst({
+    where: {
+      userId: currentUser.userId,
+      movieTitle: dbUser.favoriteMovie,
+    },
+    orderBy: { createdAt: "desc" },
+    select: { factText: true },
+  });
+
   return (
     <main className="page">
       <div className="container py-10">
@@ -48,12 +58,15 @@ export default async function DashboardPage() {
             <div className="flex items-center justify-between gap-6">
               <div className="flex items-center gap-4">
             {dbUser.image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={dbUser.image}
-                alt="User photo"
-                className="w-14 h-14 rounded-full object-cover"
-              />
+              <div className="relative h-14 w-14 overflow-hidden rounded-full bg-gray-200">
+                <Image
+                  src={dbUser.image}
+                  alt="User photo"
+                  fill
+                  sizes="56px"
+                  className="object-cover"
+                />
+              </div>
             ) : (
               <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 font-semibold">
                 {(dbUser.name?.[0] ?? "U").toUpperCase()}
@@ -93,7 +106,10 @@ export default async function DashboardPage() {
           </div>
 
           <div className="card p-6 sm:p-8">
-            <FactGenerator movieTitle={dbUser.favoriteMovie} />
+            <FactGenerator
+              movieTitle={dbUser.favoriteMovie}
+              initialFactText={latestFact?.factText ?? null}
+            />
           </div>
         </div>
       </div>

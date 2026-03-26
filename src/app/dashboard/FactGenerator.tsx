@@ -4,10 +4,14 @@ import { useState } from "react";
 
 export default function FactGenerator({
   movieTitle,
+  initialFactText,
 }: {
   movieTitle: string;
+  initialFactText?: string | null;
 }) {
-  const [factText, setFactText] = useState<string | null>(null);
+  const [factText, setFactText] = useState<string | null>(
+    initialFactText ?? null,
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
