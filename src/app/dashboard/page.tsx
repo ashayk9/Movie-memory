@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db/prisma";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 
 import FactGenerator from "./FactGenerator";
-import LogoutButton from "../LogoutButton";
+import LogoutButton from "../components/LogoutButton";
 import Image from "next/image";
 
 export default async function DashboardPage() {

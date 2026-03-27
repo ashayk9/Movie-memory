@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 
-import GoogleSignInButton from "./GoogleSignInButton";
+import GoogleSignInButton from "./components/GoogleSignInButton";
 
 export default async function Home() {
   const currentUser = await getCurrentUser();
