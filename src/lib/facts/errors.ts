@@ -1,7 +1,8 @@
 export type ApiErrorCode =
   | "GENERATION_IN_PROGRESS"
   | "MISSING_LLM_CREDENTIALS"
-  | "LLM_FAILED";
+  | "LLM_FAILED"
+  | "RATE_LIMITED";
 
 export class AppError extends Error {
   readonly code: ApiErrorCode;
@@ -19,14 +20,12 @@ export class AppError extends Error {
       cause?: unknown;
     }
   ) {
-    super(message);
+    super(message, { cause: opts.cause });
     this.name = this.constructor.name;
     this.code = opts.code;
     this.status = opts.status;
     this.retryable = opts.retryable;
     this.retryAfterMs = opts.retryAfterMs;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (this as any).cause = opts.cause;
   }
 }
 
@@ -58,6 +57,17 @@ export class LLMProviderError extends AppError {
       status: 502,
       retryable: true,
       cause,
+    });
+  }
+}
+
+export class RateLimitedError extends AppError {
+  constructor(retryAfterMs: number) {
+    super("Too many fact requests. Please try again shortly.", {
+      code: "RATE_LIMITED",
+      status: 429,
+      retryable: true,
+      retryAfterMs,
     });
   }
 }

@@ -1,6 +1,9 @@
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 
+import { auth } from "@/auth";
 import { prisma } from "@/lib/db/prisma";
+
+import { readAppSessionFields } from "./sessionTypes";
 
 export type CurrentUser = {
   userId: string;
@@ -10,50 +13,27 @@ export type CurrentUser = {
   image?: string | null;
 };
 
+/**
+ * Server-side session via Auth.js `auth(Headers)` (same contract as /api/auth/session, no internal HTTP).
+ */
 export async function getCurrentUser(): Promise<CurrentUser | null> {
-  const cookieHeader = cookies().toString();
-  const host = headers().get("host") ?? "localhost:3004";
-  const proto = process.env.NODE_ENV === "production" ? "https" : "http";
+  const h = new Headers();
+  h.set("cookie", cookies().toString());
 
-  // Calling the session endpoint ensures we use the incoming cookies.
-  const res = await fetch(`${proto}://${host}/api/auth/session`, {
-    headers: {
-      cookie: cookieHeader,
-    },
-  });
+  const raw = await auth(h);
+  const fields = readAppSessionFields(raw);
+  if (!fields) return null;
 
-  const session = (await res.json().catch(() => null)) as any;
-  if (!session) return null;
-
-  const userId =
-    session.userId ??
-    session?.user?.userId ??
-    session?.auth?.userId ??
-    session?.token?.userId;
-
-  const googleId =
-    session.googleId ??
-    session?.user?.googleId ??
-    session?.auth?.googleId ??
-    session?.token?.googleId ??
-    null;
-
-  if (!userId) return null;
-
-  // Session payload may not include provider identifiers like `googleId`.
-  // For Variant A onboarding/fact logic we need it to upsert safely.
   const dbUser = await prisma.user.findUnique({
-    where: { id: userId },
+    where: { id: fields.userId },
     select: { googleId: true, email: true, name: true, image: true },
   });
 
   return {
-    userId,
-    googleId: googleId ?? dbUser?.googleId ?? null,
-    email: session?.user?.email ?? session?.email ?? dbUser?.email ?? null,
-    name: session?.user?.name ?? session?.name ?? dbUser?.name ?? null,
-    image:
-      session?.user?.image ?? session?.picture ?? session?.image ?? dbUser?.image ?? null,
+    userId: fields.userId,
+    googleId: fields.googleId ?? dbUser?.googleId ?? null,
+    email: fields.email ?? dbUser?.email ?? null,
+    name: fields.name ?? dbUser?.name ?? null,
+    image: fields.image ?? dbUser?.image ?? null,
   };
 }
-

@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 
+import { FactGenerationLockStatus } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/db/prisma";
 import {
   GenerationInProgressError,
@@ -50,7 +51,7 @@ async function acquireOrWaitForLock(args: {
       data: {
         userId,
         movieTitle,
-        status: "IN_PROGRESS",
+        status: FactGenerationLockStatus.IN_PROGRESS,
       },
     });
     console.info(`[facts] lock acquired key=${lockKey}`);
@@ -74,7 +75,11 @@ async function acquireOrWaitForLock(args: {
     if (!existingLock) {
       // Lock disappeared after unique conflict; retry once.
       await prisma.factGenerationLock.create({
-        data: { userId, movieTitle, status: "IN_PROGRESS" },
+        data: {
+          userId,
+          movieTitle,
+          status: FactGenerationLockStatus.IN_PROGRESS,
+        },
       });
       console.info(`[facts] lock acquired after retry key=${lockKey}`);
       return { owned: true as const };
@@ -90,7 +95,7 @@ async function acquireOrWaitForLock(args: {
           updatedAt: existingLock.updatedAt,
         },
         data: {
-          status: "IN_PROGRESS",
+          status: FactGenerationLockStatus.IN_PROGRESS,
           startedAt: new Date(),
         },
       });

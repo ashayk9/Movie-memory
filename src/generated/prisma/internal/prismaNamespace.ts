@@ -763,6 +763,20 @@ export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 
 
 /**
+ * Reference to a field of type 'FactGenerationLockStatus'
+ */
+export type EnumFactGenerationLockStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FactGenerationLockStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'FactGenerationLockStatus[]'
+ */
+export type ListEnumFactGenerationLockStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FactGenerationLockStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'Int'
  */
 export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>

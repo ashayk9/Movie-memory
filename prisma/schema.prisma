@@ -12,6 +12,12 @@ datasource db {
   provider = "postgresql"
 }
 
+enum FactGenerationLockStatus {
+  IN_PROGRESS
+  FAILED
+  DONE
+}
+
 model User {
   id            String        @id @default(cuid())
   googleId     String        @unique
@@ -43,8 +49,7 @@ model FactGenerationLock {
   userId     String
   movieTitle String
 
-  // Keep it simple for this take-home; you can extend later to FAILED/RETRY states.
-  status     String   @default("IN_PROGRESS")
+  status     FactGenerationLockStatus @default(IN_PROGRESS)
 
   startedAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt

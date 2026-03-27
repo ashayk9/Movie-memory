@@ -3,8 +3,9 @@ import { z } from "zod";
 
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import { prisma } from "@/lib/db/prisma";
+import { AppError, RateLimitedError } from "@/lib/facts/errors";
 import { getFactForUserMovie } from "@/lib/facts/getFactForUserMovie";
-import { AppError } from "@/lib/facts/errors";
+import { consumeFactRateLimit } from "@/lib/rateLimit/factRateLimit";
 
 const BodySchema = z.object({
   movieTitle: z.string().trim().min(1).max(100),
@@ -16,6 +17,25 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { error: "Unauthorized", code: "UNAUTHORIZED", retryable: false },
       { status: 401 }
+    );
+  }
+
+  const rate = consumeFactRateLimit(currentUser.userId);
+  if (!rate.ok) {
+    const e = new RateLimitedError(rate.retryAfterMs);
+    return NextResponse.json(
+      {
+        error: e.message,
+        code: e.code,
+        retryable: e.retryable,
+        retryAfterMs: e.retryAfterMs ?? null,
+      },
+      {
+        status: e.status,
+        headers: {
+          "Retry-After": String(Math.ceil(rate.retryAfterMs / 1000)),
+        },
+      }
     );
   }
 

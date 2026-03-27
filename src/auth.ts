@@ -1,81 +1,89 @@
 import { NextAuth } from "@auth/nextjs";
 import Google from "@auth/core/providers/google";
+import type { JWT } from "@auth/core/jwt";
+import type { Profile, Session, User } from "@auth/core/types";
 
 import { prisma } from "@/lib/db/prisma";
 
+type AppJwt = JWT & { userId?: string; googleId?: string };
+
+function googleSubject(profile: Profile, user: User): string | undefined {
+  const sub = profile.sub ?? profile.id ?? user.id;
+  return typeof sub === "string" ? sub : undefined;
+}
+
 export const { handlers, auth } = NextAuth({
   providers: [
+    // Nested @auth/core copy under @auth/nextjs can disagree on GoogleProfile vs Profile; runtime is fine.
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID ?? "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
-    }),
+    }) as never,
   ],
-  // Variant A does not depend on auth persistence; JWT keeps setup simple.
   session: { strategy: "jwt" },
   secret: process.env.AUTH_SECRET,
 
   callbacks: {
-    // Runs on sign-in/up to persist your app user id into the JWT.
-    // On subsequent requests, `user`/`profile` are absent — those calls must still
-    // return an enriched token (e.g. backfill `googleId` for older JWTs).
-    async jwt({ token, user, profile, account, trigger }) {
-      const anyToken = token as any;
+    authorized: () => true,
+
+    async jwt({ token, user, profile, account }) {
+      const t = token as AppJwt;
 
       if (user && profile && account?.provider === "google") {
-        // For Google OIDC, the subject is stable and maps to `googleId`.
-        const googleId =
-          (profile as any).sub ?? (profile as any).id ?? (user as any).id;
-
+        const googleId = googleSubject(profile as Profile, user as User);
         if (!googleId) return token;
 
         const dbUser = await prisma.user.upsert({
           where: { googleId },
           update: {
-            email: (user as any).email ?? token.email,
-            name: (user as any).name ?? token.name,
-            image: (user as any).image ?? token.picture,
+            email: user.email ?? t.email,
+            name: user.name ?? t.name,
+            image: user.image ?? (typeof t.picture === "string" ? t.picture : null),
           },
           create: {
             googleId,
-            email: (user as any).email ?? token.email,
-            name: (user as any).name ?? token.name,
-            image: (user as any).image ?? token.picture,
+            email: user.email ?? t.email,
+            name: user.name ?? t.name,
+            image: user.image ?? (typeof t.picture === "string" ? t.picture : null),
           },
         });
 
-        anyToken.userId = dbUser.id;
-        anyToken.googleId = dbUser.googleId;
+        t.userId = dbUser.id;
+        t.googleId = dbUser.googleId;
         return token;
       }
 
-      // Older sessions only had `userId` in the JWT; hydrate `googleId` from DB.
-      if (anyToken.userId && !anyToken.googleId) {
+      if (t.userId && !t.googleId) {
         const row = await prisma.user.findUnique({
-          where: { id: anyToken.userId },
+          where: { id: t.userId },
           select: { googleId: true },
         });
         if (row?.googleId) {
-          anyToken.googleId = row.googleId;
+          t.googleId = row.googleId;
         }
       }
 
       return token;
     },
 
-    // Expose `userId` to the session response so server components can use it.
     session({ session, token }) {
-      const anySession = session as any;
-      const anyToken = token as any;
-      anySession.userId = anyToken.userId;
+      const t = token as AppJwt;
+      const s = session as Session & {
+        userId?: string;
+        googleId?: string | null;
+      };
 
-      // Auth.js typically exposes a limited set of fields in `session.user`.
-      // We add provider identifiers so server actions/pages can upsert safely.
-      anySession.googleId = anyToken.googleId;
-      anySession.user = anySession.user ?? {};
-      anySession.user.userId = anyToken.userId;
-      anySession.user.googleId = anyToken.googleId;
-      return session;
+      s.userId = t.userId;
+      s.googleId = t.googleId ?? null;
+      const u = (s.user ?? {}) as User & {
+        userId?: string;
+        googleId?: string | null;
+      };
+      u.userId = t.userId;
+      u.googleId = t.googleId ?? null;
+      s.user = u;
+
+      return s;
     },
   },
 });
-

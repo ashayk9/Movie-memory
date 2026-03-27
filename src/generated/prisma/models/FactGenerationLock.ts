@@ -28,7 +28,7 @@ export type FactGenerationLockMinAggregateOutputType = {
   id: string | null
   userId: string | null
   movieTitle: string | null
-  status: string | null
+  status: $Enums.FactGenerationLockStatus | null
   startedAt: Date | null
   updatedAt: Date | null
 }
@@ -37,7 +37,7 @@ export type FactGenerationLockMaxAggregateOutputType = {
   id: string | null
   userId: string | null
   movieTitle: string | null
-  status: string | null
+  status: $Enums.FactGenerationLockStatus | null
   startedAt: Date | null
   updatedAt: Date | null
 }
@@ -157,7 +157,7 @@ export type FactGenerationLockGroupByOutputType = {
   id: string
   userId: string
   movieTitle: string
-  status: string
+  status: $Enums.FactGenerationLockStatus
   startedAt: Date
   updatedAt: Date
   _count: FactGenerationLockCountAggregateOutputType | null
@@ -187,7 +187,7 @@ export type FactGenerationLockWhereInput = {
   id?: Prisma.StringFilter<"FactGenerationLock"> | string
   userId?: Prisma.StringFilter<"FactGenerationLock"> | string
   movieTitle?: Prisma.StringFilter<"FactGenerationLock"> | string
-  status?: Prisma.StringFilter<"FactGenerationLock"> | string
+  status?: Prisma.EnumFactGenerationLockStatusFilter<"FactGenerationLock"> | $Enums.FactGenerationLockStatus
   startedAt?: Prisma.DateTimeFilter<"FactGenerationLock"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FactGenerationLock"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -211,7 +211,7 @@ export type FactGenerationLockWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.FactGenerationLockWhereInput | Prisma.FactGenerationLockWhereInput[]
   userId?: Prisma.StringFilter<"FactGenerationLock"> | string
   movieTitle?: Prisma.StringFilter<"FactGenerationLock"> | string
-  status?: Prisma.StringFilter<"FactGenerationLock"> | string
+  status?: Prisma.EnumFactGenerationLockStatusFilter<"FactGenerationLock"> | $Enums.FactGenerationLockStatus
   startedAt?: Prisma.DateTimeFilter<"FactGenerationLock"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FactGenerationLock"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -236,7 +236,7 @@ export type FactGenerationLockScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"FactGenerationLock"> | string
   userId?: Prisma.StringWithAggregatesFilter<"FactGenerationLock"> | string
   movieTitle?: Prisma.StringWithAggregatesFilter<"FactGenerationLock"> | string
-  status?: Prisma.StringWithAggregatesFilter<"FactGenerationLock"> | string
+  status?: Prisma.EnumFactGenerationLockStatusWithAggregatesFilter<"FactGenerationLock"> | $Enums.FactGenerationLockStatus
   startedAt?: Prisma.DateTimeWithAggregatesFilter<"FactGenerationLock"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"FactGenerationLock"> | Date | string
 }
@@ -244,7 +244,7 @@ export type FactGenerationLockScalarWhereWithAggregatesInput = {
 export type FactGenerationLockCreateInput = {
   id?: string
   movieTitle: string
-  status?: string
+  status?: $Enums.FactGenerationLockStatus
   startedAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutGenerationLocksInput
@@ -254,7 +254,7 @@ export type FactGenerationLockUncheckedCreateInput = {
   id?: string
   userId: string
   movieTitle: string
-  status?: string
+  status?: $Enums.FactGenerationLockStatus
   startedAt?: Date | string
   updatedAt?: Date | string
 }
@@ -262,7 +262,7 @@ export type FactGenerationLockUncheckedCreateInput = {
 export type FactGenerationLockUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   movieTitle?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumFactGenerationLockStatusFieldUpdateOperationsInput | $Enums.FactGenerationLockStatus
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutGenerationLocksNestedInput
@@ -272,7 +272,7 @@ export type FactGenerationLockUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   movieTitle?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumFactGenerationLockStatusFieldUpdateOperationsInput | $Enums.FactGenerationLockStatus
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -281,7 +281,7 @@ export type FactGenerationLockCreateManyInput = {
   id?: string
   userId: string
   movieTitle: string
-  status?: string
+  status?: $Enums.FactGenerationLockStatus
   startedAt?: Date | string
   updatedAt?: Date | string
 }
@@ -289,7 +289,7 @@ export type FactGenerationLockCreateManyInput = {
 export type FactGenerationLockUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   movieTitle?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumFactGenerationLockStatusFieldUpdateOperationsInput | $Enums.FactGenerationLockStatus
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -298,7 +298,7 @@ export type FactGenerationLockUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   movieTitle?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumFactGenerationLockStatusFieldUpdateOperationsInput | $Enums.FactGenerationLockStatus
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -387,10 +387,14 @@ export type FactGenerationLockUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.FactGenerationLockScalarWhereInput | Prisma.FactGenerationLockScalarWhereInput[]
 }
 
+export type EnumFactGenerationLockStatusFieldUpdateOperationsInput = {
+  set?: $Enums.FactGenerationLockStatus
+}
+
 export type FactGenerationLockCreateWithoutUserInput = {
   id?: string
   movieTitle: string
-  status?: string
+  status?: $Enums.FactGenerationLockStatus
   startedAt?: Date | string
   updatedAt?: Date | string
 }
@@ -398,7 +402,7 @@ export type FactGenerationLockCreateWithoutUserInput = {
 export type FactGenerationLockUncheckedCreateWithoutUserInput = {
   id?: string
   movieTitle: string
-  status?: string
+  status?: $Enums.FactGenerationLockStatus
   startedAt?: Date | string
   updatedAt?: Date | string
 }
@@ -436,7 +440,7 @@ export type FactGenerationLockScalarWhereInput = {
   id?: Prisma.StringFilter<"FactGenerationLock"> | string
   userId?: Prisma.StringFilter<"FactGenerationLock"> | string
   movieTitle?: Prisma.StringFilter<"FactGenerationLock"> | string
-  status?: Prisma.StringFilter<"FactGenerationLock"> | string
+  status?: Prisma.EnumFactGenerationLockStatusFilter<"FactGenerationLock"> | $Enums.FactGenerationLockStatus
   startedAt?: Prisma.DateTimeFilter<"FactGenerationLock"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FactGenerationLock"> | Date | string
 }
@@ -444,7 +448,7 @@ export type FactGenerationLockScalarWhereInput = {
 export type FactGenerationLockCreateManyUserInput = {
   id?: string
   movieTitle: string
-  status?: string
+  status?: $Enums.FactGenerationLockStatus
   startedAt?: Date | string
   updatedAt?: Date | string
 }
@@ -452,7 +456,7 @@ export type FactGenerationLockCreateManyUserInput = {
 export type FactGenerationLockUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   movieTitle?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumFactGenerationLockStatusFieldUpdateOperationsInput | $Enums.FactGenerationLockStatus
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -460,7 +464,7 @@ export type FactGenerationLockUpdateWithoutUserInput = {
 export type FactGenerationLockUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   movieTitle?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumFactGenerationLockStatusFieldUpdateOperationsInput | $Enums.FactGenerationLockStatus
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -468,7 +472,7 @@ export type FactGenerationLockUncheckedUpdateWithoutUserInput = {
 export type FactGenerationLockUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   movieTitle?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumFactGenerationLockStatusFieldUpdateOperationsInput | $Enums.FactGenerationLockStatus
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -534,7 +538,7 @@ export type $FactGenerationLockPayload<ExtArgs extends runtime.Types.Extensions.
     id: string
     userId: string
     movieTitle: string
-    status: string
+    status: $Enums.FactGenerationLockStatus
     startedAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["factGenerationLock"]>
@@ -964,7 +968,7 @@ export interface FactGenerationLockFieldRefs {
   readonly id: Prisma.FieldRef<"FactGenerationLock", 'String'>
   readonly userId: Prisma.FieldRef<"FactGenerationLock", 'String'>
   readonly movieTitle: Prisma.FieldRef<"FactGenerationLock", 'String'>
-  readonly status: Prisma.FieldRef<"FactGenerationLock", 'String'>
+  readonly status: Prisma.FieldRef<"FactGenerationLock", 'FactGenerationLockStatus'>
   readonly startedAt: Prisma.FieldRef<"FactGenerationLock", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"FactGenerationLock", 'DateTime'>
 }

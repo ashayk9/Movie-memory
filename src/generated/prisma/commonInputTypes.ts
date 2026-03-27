@@ -110,6 +110,23 @@ export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedDateTimeFilter<$PrismaModel>
 }
 
+export type EnumFactGenerationLockStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.FactGenerationLockStatus | Prisma.EnumFactGenerationLockStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.FactGenerationLockStatus[] | Prisma.ListEnumFactGenerationLockStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.FactGenerationLockStatus[] | Prisma.ListEnumFactGenerationLockStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumFactGenerationLockStatusFilter<$PrismaModel> | $Enums.FactGenerationLockStatus
+}
+
+export type EnumFactGenerationLockStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.FactGenerationLockStatus | Prisma.EnumFactGenerationLockStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.FactGenerationLockStatus[] | Prisma.ListEnumFactGenerationLockStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.FactGenerationLockStatus[] | Prisma.ListEnumFactGenerationLockStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumFactGenerationLockStatusWithAggregatesFilter<$PrismaModel> | $Enums.FactGenerationLockStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumFactGenerationLockStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumFactGenerationLockStatusFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -217,6 +234,23 @@ export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedDateTimeFilter<$PrismaModel>
   _max?: Prisma.NestedDateTimeFilter<$PrismaModel>
+}
+
+export type NestedEnumFactGenerationLockStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.FactGenerationLockStatus | Prisma.EnumFactGenerationLockStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.FactGenerationLockStatus[] | Prisma.ListEnumFactGenerationLockStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.FactGenerationLockStatus[] | Prisma.ListEnumFactGenerationLockStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumFactGenerationLockStatusFilter<$PrismaModel> | $Enums.FactGenerationLockStatus
+}
+
+export type NestedEnumFactGenerationLockStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.FactGenerationLockStatus | Prisma.EnumFactGenerationLockStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.FactGenerationLockStatus[] | Prisma.ListEnumFactGenerationLockStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.FactGenerationLockStatus[] | Prisma.ListEnumFactGenerationLockStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumFactGenerationLockStatusWithAggregatesFilter<$PrismaModel> | $Enums.FactGenerationLockStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumFactGenerationLockStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumFactGenerationLockStatusFilter<$PrismaModel>
 }
 
 

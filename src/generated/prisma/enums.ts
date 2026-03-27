@@ -9,7 +9,10 @@
 * 🟢 You can import this file directly.
 */
 
+export const FactGenerationLockStatus = {
+  IN_PROGRESS: 'IN_PROGRESS',
+  FAILED: 'FAILED',
+  DONE: 'DONE'
+} as const
 
-
-// This file is empty because there are no enums in the schema.
-export {}
+export type FactGenerationLockStatus = (typeof FactGenerationLockStatus)[keyof typeof FactGenerationLockStatus]
