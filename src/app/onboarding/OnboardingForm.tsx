@@ -67,11 +67,22 @@ export default function OnboardingForm() {
       </label>
 
       <button type="submit" disabled={loading} className="btn-primary w-full">
-        {loading ? "Saving..." : "Save and continue"}
+        {loading ? (
+          <span className="inline-flex items-center gap-2">
+            <span className="spinner" aria-hidden="true" />
+            Saving...
+          </span>
+        ) : (
+          "Save and continue"
+        )}
       </button>
 
-      {error ? <p className="text-sm font-medium text-red-600">{error}</p> : null}
-      {retryHint ? <p className="text-xs text-slate-600">{retryHint}</p> : null}
+      {error ? (
+        <p className="alert-error" role="alert">
+          {error}
+        </p>
+      ) : null}
+      {retryHint ? <p className="alert-info">Please wait. {retryHint}</p> : null}
     </form>
   );
 }

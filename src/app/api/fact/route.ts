@@ -4,9 +4,8 @@ import { z } from "zod";
 import { jsonError, jsonOk, createRequestId } from "@/lib/api/response";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import { prisma } from "@/lib/db/prisma";
-import { AppError, RateLimitedError } from "@/lib/facts/errors";
+import { AppError } from "@/lib/facts/errors";
 import { getFactForUserMovie } from "@/lib/facts/getFactForUserMovie";
-import { consumeFactRateLimit } from "@/lib/rateLimit/factRateLimit";
 
 const BodySchema = z.object({
   movieTitle: z.string().trim().min(1).max(100),
@@ -23,22 +22,6 @@ export async function POST(request: Request) {
       message: "Unauthorized",
       retryable: false,
       requestId,
-    });
-  }
-
-  const rate = consumeFactRateLimit(currentUser.userId);
-  if (!rate.ok) {
-    const e = new RateLimitedError(rate.retryAfterMs);
-    return jsonError({
-      status: e.status,
-      code: e.code,
-      message: e.message,
-      retryable: e.retryable,
-      retryAfterMs: e.retryAfterMs ?? null,
-      requestId,
-      headers: {
-        "Retry-After": String(Math.ceil(rate.retryAfterMs / 1000)),
-      },
     });
   }
 
@@ -92,6 +75,7 @@ export async function POST(request: Request) {
     return jsonOk({
       factText: result.factText,
       source: result.source,
+      createdAt: result.createdAt.toISOString(),
     }, requestId);
   } catch (e) {
     if (e instanceof AppError) {

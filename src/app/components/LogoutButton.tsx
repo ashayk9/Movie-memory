@@ -24,7 +24,7 @@ export default function LogoutButton({
   }
 
   return (
-    <div className="w-full">
+    <div className="w-auto">
       <button
         type="button"
         onClick={onSignOut}

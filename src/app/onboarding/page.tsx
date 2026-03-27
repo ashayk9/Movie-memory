@@ -21,18 +21,14 @@ export default async function OnboardingPage() {
           <div className="mx-auto w-full max-w-xl">
             <div className="card p-6 sm:p-8">
               <h1 className="text-2xl font-semibold text-slate-900">
-                Onboarding
+                Favorite movie already saved
               </h1>
               <p className="mt-2 text-sm text-slate-600">
-            You already set your favorite movie. Redirecting you to the
-            dashboard.
-          </p>
-          <a
-            href="/dashboard"
-                className="btn-primary mt-6 w-full"
-          >
-            Go to Dashboard
-          </a>
+                You can continue to your dashboard.
+              </p>
+              <a href="/dashboard" className="btn-primary mt-6 w-full">
+                Go to dashboard
+              </a>
             </div>
           </div>
         </div>
@@ -45,17 +41,16 @@ export default async function OnboardingPage() {
       <div className="container py-16">
         <div className="mx-auto w-full max-w-xl">
           <div className="card p-6 sm:p-8">
-            <div className="flex items-start justify-between gap-4">
+            <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
               <div>
                 <h1 className="text-2xl font-semibold text-slate-900">
                   Pick your favorite movie
                 </h1>
                 <p className="mt-2 text-sm text-slate-600">
-                  We’ll use it to personalize your dashboard and generate fun
-                  facts.
+                  We use this to personalize your dashboard and fact generation.
                 </p>
               </div>
-              <a href="/" className="btn-ghost shrink-0">
+              <a href="/" className="btn-ghost w-full shrink-0 sm:w-auto">
                 Back
               </a>
             </div>

@@ -1,0 +1,5 @@
+Node.js>=20
+npm>=10
+PostgreSQL>=14
+Google OAuth credentials
+OpenAI API key (or Groq API key)

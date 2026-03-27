@@ -9,7 +9,7 @@
   }
 
   body {
-    @apply bg-slate-50 text-slate-900 antialiased;
+    @apply bg-slate-100 text-slate-900 antialiased;
   }
 }
 
@@ -23,7 +23,7 @@
   }
 
   .card {
-    @apply rounded-2xl border border-slate-200 bg-white shadow-sm;
+    @apply rounded-3xl border border-slate-200/80 bg-white shadow-sm shadow-slate-300/30;
   }
 
   .card-muted {
@@ -31,11 +31,11 @@
   }
 
   .btn {
-    @apply inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-200 disabled:cursor-not-allowed disabled:opacity-60;
+    @apply inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-blue-200 disabled:cursor-not-allowed disabled:opacity-60;
   }
 
   .btn-primary {
-    @apply btn bg-blue-600 text-white hover:bg-blue-700;
+    @apply btn bg-blue-600 text-white hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md hover:shadow-blue-200/50 disabled:bg-blue-400;
   }
 
   .btn-ghost {
@@ -52,5 +52,29 @@
 
   .help {
     @apply text-sm text-slate-600;
+  }
+
+  .spinner {
+    @apply inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent;
+  }
+
+  .alert-error {
+    @apply rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700;
+  }
+
+  .alert-info {
+    @apply rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-700;
+  }
+
+  .badge-dot {
+    @apply h-1.5 w-1.5 rounded-full;
+  }
+
+  .skeleton {
+    @apply animate-pulse rounded-2xl border border-slate-200 bg-slate-100;
   }
 }

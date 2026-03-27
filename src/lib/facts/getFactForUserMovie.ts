@@ -11,12 +11,14 @@ import {
 export type FactResult = {
   factText: string;
   source: "cache" | "generated" | "fallback_cache";
+  createdAt: Date;
 };
 
 const CACHE_WINDOW_MS = 60_000;
 const LOCK_WAIT_MS = 250;
 const LOCK_WAIT_ATTEMPTS = 5;
 const LOCK_TTL_MS = Number(process.env.LOCK_TTL_MS ?? "30000");
+const FACT_HISTORY_LIMIT = 5;
 
 function normalizeMovieTitle(input: string) {
   return input.trim().replace(/\s+/g, " ");
@@ -31,6 +33,21 @@ async function getLatestFact(userId: string, movieTitle: string) {
     where: { userId, movieTitle },
     orderBy: { createdAt: "desc" },
     select: { factText: true, createdAt: true },
+  });
+}
+
+async function pruneFactHistory(userId: string, movieTitle: string) {
+  const staleRows = await prisma.movieFact.findMany({
+    where: { userId, movieTitle },
+    orderBy: { createdAt: "desc" },
+    skip: FACT_HISTORY_LIMIT,
+    select: { id: true },
+  });
+
+  if (staleRows.length === 0) return;
+
+  await prisma.movieFact.deleteMany({
+    where: { id: { in: staleRows.map((r) => r.id) } },
   });
 }
 
@@ -112,7 +129,11 @@ async function acquireOrWaitForLock(args: {
       const recentMs = recentFact?.createdAt.getTime() ?? 0;
       if (recentFact && recentMs > latestAtStartMs) {
         console.info(`[facts] served fresh fact after wait key=${lockKey}`);
-        return { owned: false as const, factText: recentFact.factText };
+        return {
+          owned: false as const,
+          factText: recentFact.factText,
+          createdAt: recentFact.createdAt,
+        };
       }
     }
 
@@ -209,7 +230,11 @@ export async function getFactForUserMovie(args: {
 
   const latestFact = await getLatestFact(args.userId, normalizedMovieTitle);
   if (latestFact && isFresh(latestFact.createdAt)) {
-    return { factText: latestFact.factText, source: "cache" };
+    return {
+      factText: latestFact.factText,
+      source: "cache",
+      createdAt: latestFact.createdAt,
+    };
   }
 
   const latestAtStartMs = latestFact?.createdAt.getTime() ?? 0;
@@ -222,14 +247,18 @@ export async function getFactForUserMovie(args: {
   });
 
   if (!lock.owned) {
-    return { factText: lock.factText, source: "cache" };
+    return { factText: lock.factText, source: "cache", createdAt: lock.createdAt };
   }
 
   try {
     // Another request may have completed generation while we acquired the lock.
     const latestAfterLock = await getLatestFact(args.userId, normalizedMovieTitle);
     if (latestAfterLock && isFresh(latestAfterLock.createdAt)) {
-      return { factText: latestAfterLock.factText, source: "cache" };
+      return {
+        factText: latestAfterLock.factText,
+        source: "cache",
+        createdAt: latestAfterLock.createdAt,
+      };
     }
 
     const factText = await callLLM(normalizedMovieTitle);
@@ -240,12 +269,17 @@ export async function getFactForUserMovie(args: {
         factText,
       },
     });
+    await pruneFactHistory(args.userId, normalizedMovieTitle);
 
-    return { factText, source: "generated" };
+    return { factText, source: "generated", createdAt: new Date() };
   } catch (e) {
     const fallbackFact = await getLatestFact(args.userId, normalizedMovieTitle);
     if (fallbackFact) {
-      return { factText: fallbackFact.factText, source: "fallback_cache" };
+      return {
+        factText: fallbackFact.factText,
+        source: "fallback_cache",
+        createdAt: fallbackFact.createdAt,
+      };
     }
     throw e;
   } finally {

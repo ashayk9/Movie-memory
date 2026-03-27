@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const movieFactFindFirst = vi.fn();
 const movieFactCreate = vi.fn();
+const movieFactFindMany = vi.fn();
+const movieFactDeleteMany = vi.fn();
 const lockCreate = vi.fn();
 const lockFindUnique = vi.fn();
 const lockUpdateMany = vi.fn();
@@ -14,6 +16,8 @@ vi.mock("@/lib/db/prisma", () => ({
     movieFact: {
       findFirst: movieFactFindFirst,
       create: movieFactCreate,
+      findMany: movieFactFindMany,
+      deleteMany: movieFactDeleteMany,
     },
     factGenerationLock: {
       create: lockCreate,
@@ -45,6 +49,8 @@ describe("getFactForUserMovie Variant A behavior", () => {
 
     process.env.OPENAI_API_KEY = "test-openai-key";
     delete process.env.GROQ_API_KEY;
+    movieFactFindMany.mockResolvedValue([]);
+    movieFactDeleteMany.mockResolvedValue({ count: 0 });
   });
 
   it("returns cached fact within 60s and skips LLM call", async () => {
@@ -61,7 +67,13 @@ describe("getFactForUserMovie Variant A behavior", () => {
       movieTitle: "  Avengers   ",
     });
 
-    expect(result).toEqual({ factText: "cached fact", source: "cache" });
+    expect(result).toEqual(
+      expect.objectContaining({
+        factText: "cached fact",
+        source: "cache",
+      }),
+    );
+    expect(result.createdAt).toBeInstanceOf(Date);
     expect(openAIConstructor).not.toHaveBeenCalled();
     expect(lockCreate).not.toHaveBeenCalled();
   });
@@ -92,10 +104,13 @@ describe("getFactForUserMovie Variant A behavior", () => {
       movieTitle: "Avengers",
     });
 
-    expect(result).toEqual({
-      factText: "new generated fact",
-      source: "generated",
-    });
+    expect(result).toEqual(
+      expect.objectContaining({
+        factText: "new generated fact",
+        source: "generated",
+      }),
+    );
+    expect(result.createdAt).toBeInstanceOf(Date);
     expect(completionCreate).toHaveBeenCalledTimes(1);
     expect(movieFactCreate).toHaveBeenCalledWith({
       data: {
@@ -190,10 +205,13 @@ describe("getFactForUserMovie Variant A behavior", () => {
       movieTitle: "Avengers",
     });
 
-    expect(result).toEqual({
-      factText: "old cached fact",
-      source: "fallback_cache",
-    });
+    expect(result).toEqual(
+      expect.objectContaining({
+        factText: "old cached fact",
+        source: "fallback_cache",
+      }),
+    );
+    expect(result.createdAt).toBeInstanceOf(Date);
     expect(completionCreate).toHaveBeenCalledTimes(1);
     expect(movieFactCreate).not.toHaveBeenCalled();
     expect(lockDeleteMany).toHaveBeenCalledTimes(1);
