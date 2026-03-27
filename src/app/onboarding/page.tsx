@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 
+import OnboardingForm from "./OnboardingForm";
+
 export default async function OnboardingPage() {
   const currentUser = await getCurrentUser();
   if (!currentUser) redirect("/");
@@ -58,31 +60,7 @@ export default async function OnboardingPage() {
               </a>
             </div>
 
-            <form
-              action="/api/onboarding"
-              method="post"
-              className="mt-8 space-y-5"
-            >
-              <label className="block">
-                <span className="label">Favorite movie</span>
-            <input
-              name="movieTitle"
-              type="text"
-              placeholder="e.g. The Matrix"
-                  className="input mt-2"
-              required
-              minLength={1}
-              maxLength={100}
-            />
-                <p className="help mt-2">
-                  Tip: be specific (sequels, subtitles). Max 100 characters.
-                </p>
-              </label>
-
-              <button type="submit" className="btn-primary w-full">
-                Save and continue
-              </button>
-            </form>
+            <OnboardingForm />
           </div>
         </div>
       </div>

@@ -2,6 +2,12 @@
 
 import { useState } from "react";
 
+import {
+  formatErrorWithRequestId,
+  formatRetryAfter,
+  parseApiError,
+} from "@/lib/api/clientError";
+
 export default function FactGenerator({
   movieTitle,
   initialFactText,
@@ -14,10 +20,12 @@ export default function FactGenerator({
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [retryHint, setRetryHint] = useState<string | null>(null);
 
   async function onGenerate() {
     setLoading(true);
     setError(null);
+    setRetryHint(null);
 
     try {
       const res = await fetch("/api/fact", {
@@ -26,11 +34,16 @@ export default function FactGenerator({
         body: JSON.stringify({ movieTitle }),
       });
 
-      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        throw new Error(data.error ?? "Failed to generate fact");
+        const apiErr = await parseApiError(res);
+        const msg = apiErr?.message ?? "Failed to generate fact";
+        setRetryHint(formatRetryAfter(apiErr?.retryAfterMs));
+        throw new Error(formatErrorWithRequestId(msg, apiErr?.requestId));
       }
 
+      const data = (await res.json().catch(() => ({}))) as {
+        factText?: unknown;
+      };
       setFactText(String(data.factText ?? ""));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong");
@@ -69,7 +82,12 @@ export default function FactGenerator({
         )}
 
         {error ? (
-          <p className="mt-3 text-sm font-medium text-red-600">{error}</p>
+          <div className="mt-3 space-y-1">
+            <p className="text-sm font-medium text-red-600">{error}</p>
+            {retryHint ? (
+              <p className="text-xs text-slate-600">{retryHint}</p>
+            ) : null}
+          </div>
         ) : null}
       </div>
     </div>
